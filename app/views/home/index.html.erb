@@ -1,2 +1,17 @@
-<h1>Home#index</h1>
-<p>Find me in app/views/home/index.html.erb</p>
+<%= form_tag do %>
+  <%= text_field_tag(:target) %>
+  <%= submit_tag "Save" %>
+<% end %>
+<br />
+----------------<br />
+<% if !params[:target].nil? && !params[:target].empty? %>
+found it!<br />
+<% end %>
+<br />
+----------------<br />
+<% File.open("dictionary.txt", "r") do |f| %>
+  <% a = f.readlines %>
+  <% for line in a %>
+    <%= "#{line}<br />".html_safe %>
+  <% end %>
+<% end %>
