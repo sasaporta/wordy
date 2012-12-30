@@ -1,17 +1,39 @@
+<%
+target = ''
+# if !params[:target].nil? && !params[:target].empty?
+if request.post?
+  target = params[:target]
+  sortByLength = params[:sort]
+end
+%>
 <%= form_tag do %>
-  <%= text_field_tag(:target) %>
-  <%= submit_tag "Save" %>
+  <%= text_field_tag(:target, target) %>
+  <%= submit_tag "Find words" %>
+  <br />
+  <%= check_box_tag(:sort, 1, sortByLength) %> Sort by length
 <% end %>
 <br />
-----------------<br />
-<% if !params[:target].nil? && !params[:target].empty? %>
-found it!<br />
-<% end %>
-<br />
-----------------<br />
-<% File.open("dictionary.txt", "r") do |f| %>
-  <% a = f.readlines %>
-  <% for line in a %>
+
+<% if !target.empty? %>
+  <% targetRegex = '\A' + target.gsub('*', '.*').gsub('?', '.') + '\z' %>
+  <% outArray = Array.new %>
+  <% File.open("dictionary.txt", "r") do |f| %>
+    <% inArray = f.readlines %>
+    <% for line in inArray %>
+      <% line = line.strip.downcase %>
+      <% if /#{targetRegex}/i.match(line) %>
+        <% outArray << line unless outArray.include? line %>
+      <% end %>
+    <% end %>
+  <% end %>
+  <% if sortByLength %>
+    <% outArray.sort_by! { |x| [x.length, x] } %>
+  <% else %>
+    <% outArray.sort_by! %>
+  <% end %>
+  <div style='-webkit-column-count: 6;'>
+  <% for line in outArray %>
     <%= "#{line}<br />".html_safe %>
   <% end %>
+  </div>
 <% end %>
